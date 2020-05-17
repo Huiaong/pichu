@@ -54,8 +54,6 @@
 </template>
 
 <script>
-import { userLogin } from '@/api/user.js'
-import { setStore } from '@/utils/storage.js'
 export default {
   name: 'Login',
   data() {
@@ -68,8 +66,8 @@ export default {
       },
       bear: 'https://huiao.oss-cn-shenzhen.aliyuncs.com/bear-normal.png',
       loginForm: {
-        username: '',
-        password: ''
+        username: 'admin',
+        password: 'admin'
       },
       loading: false,
       pwdType: 'password',
@@ -125,18 +123,11 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          userLogin(params).then(res => {
-            if (res.success === true) {
-              setStore('token', res.result.token)
-              setStore('userId', res.result.id)
-              this.loading = false
-              this.toHome()
-            } else {
-              this.logintxt = '登录'
-              this.message(res.error)
-              this.loading = false
-              return false
-            }
+          this.$store.dispatch('user/login', params).then(() => {
+            this.loading = false
+            this.toHome()
+          }).catch(() => {
+            this.loading = false
           })
         } else {
           console.log('error submit!!')

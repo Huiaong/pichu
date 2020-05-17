@@ -1,16 +1,21 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import mutations from './mutations'
-import action from './action'
+import getters from './getters'
+import app from './modules/app'
+import api from './modules/api'
+import settings from './modules/settings'
+import user from './modules/user'
+
 Vue.use(Vuex)
 
-const state = {
-  login: false, // 是否登录
-  userInfo: null // 用户信息
-}
-
-export default new Vuex.Store({
-  state,
-  action,
-  mutations
+const store = new Vuex.Store({
+  modules: {
+    app,
+    api,
+    settings,
+    user
+  },
+  getters
 })
+
+export default store

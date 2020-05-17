@@ -1,6 +1,5 @@
 <template>
   <div class="dashboard-editor-container">
-    <github-corner class="github-corner" />
     <el-card class="welcome-card">
       <el-row :gutter="40">
         <el-card shadow="never" style="margin: 0 20px;">
@@ -211,13 +210,11 @@
 // import { getCommentList } from '@/api/comment'
 // import { getArticleList } from '@/api/article'
 // import { mapGetters } from 'vuex'
-import GithubCorner from '@/components/GithubCorner'
 import PanThumb from '@/components/PanThumb'
 
 export default {
   name: 'DashboardAdmin',
   components: {
-    GithubCorner,
     PanThumb
   },
   //   computed: {
@@ -263,9 +260,6 @@ export default {
       var time = hour < 6 ? '早上好' : (hour <= 11 ? '上午好' : (hour <= 13 ? '中午好' : (hour <= 18 ? '下午好' : '晚上好')))
       var welcomeArr = [
         '喝杯咖啡休息下吧☕',
-        '要不要和朋友打局LOL',
-        '今天又写了几个Bug呢',
-        '今天在群里吹水了吗',
         '今天吃了什么好吃的呢',
         '今天您微笑了吗😊',
         '今天帮助别人了吗',

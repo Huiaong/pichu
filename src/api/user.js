@@ -1,18 +1,26 @@
-import http from './public'
+import request from '@/utils/request'
 
-export const userInfo = (params) => {
-  return http.fetchGet('/api/admin/user/info', params)
+export function userLogin(params) {
+  return request({
+    url: '/api/admin/user/login',
+    method: 'post',
+    params
+  })
 }
 
-export const userLogin = (params) => {
-  return http.fetchPost('/api/admin/user/login', params)
+export function userInfo(params) {
+  return request({
+    url: '/api/admin/user/info',
+    method: 'get',
+    params: params
+  })
 }
 
-export const userRegister = (params) => {
-  return http.fetchPost('/api/admin/user/register', params)
-}
-
-export const userLogout = (params) => {
-  return http.fetchPost('/api/admin/user/logout', params)
+export function userLogout(params) {
+  return request({
+    url: '/api/admin/user/logout',
+    method: 'post',
+    params: params
+  })
 }
 

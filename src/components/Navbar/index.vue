@@ -5,10 +5,9 @@
     <breadcrumb class="breadcrumb-container" />
 
     <div class="right-menu">
-      <el-dropdown class="avatar-container" trigger="click">
+      <el-dropdown class="avatar-container">
         <div class="avatar-wrapper">
-          <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
-          <i class="el-icon-caret-bottom" />
+          <el-avatar size="medium" :src="avatar">{{ portrait }}</el-avatar>
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
           <router-link to="/">
@@ -34,7 +33,7 @@
 </template>
 
 <script>
-// import { mapGetters } from 'vuex'
+import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 
@@ -43,15 +42,21 @@ export default {
     Breadcrumb,
     Hamburger
   },
-  // computed: {
-  //   // ...mapGetters([
-  //   //   'sidebar',
-  //   //   'avatar'
-  //   // ])
-  // },
-  data() {
-    return {
-      avatar: `https://huiao.oss-cn-shenzhen.aliyuncs.com/bear-normal.png`
+  computed: {
+    ...mapGetters([
+      'avatar',
+      'name',
+      'email',
+      'mobile'
+    ]),
+    portrait() {
+      if (this.name) {
+        return this.name.charAt()
+      } else if (this.email) {
+        return this.email.charAt()
+      } else {
+        return this.mobile.charAt()
+      }
     }
   },
   methods: {
