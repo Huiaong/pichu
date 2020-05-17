@@ -15,3 +15,10 @@ export const delGoods = (params) => {
     params
   })
 }
+
+export const findById = (id) => {
+  return request({
+    url: `/api/admin/goods/${id}`,
+    method: 'get'
+  })
+}

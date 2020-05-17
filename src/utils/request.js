@@ -66,7 +66,6 @@ service.interceptors.response.use(
       }
       return res.result
     } else {
-      console.log(3)
       return res.result
     }
   },

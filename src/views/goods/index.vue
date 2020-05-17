@@ -14,6 +14,7 @@
 
       <el-button type="primary" icon="el-icon-search" @click="fetchData">查询</el-button>
       <el-button type="default" @click="refetchData">清空</el-button>
+      <el-button type="success" @click="handleCreate">新增</el-button>
     </el-form>
 
     <el-table
@@ -44,12 +45,12 @@
           {{ scope.row.price }}
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label="状态" align="center">
+      <el-table-column class-name="status-col" label="商品状态" align="center">
         <template slot-scope="scope">
           <el-tag :type="scope.row.status == '1' ? 'success' : 'warning'">{{ scope.row.status == '1' ? '已发布' : '未发布' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="商品详情" align="center" show-overflow-tooltip>
+      <el-table-column label="商品介绍" align="center" show-overflow-tooltip>
         <template slot-scope="scope">
           {{ scope.row.desc }}
         </template>
@@ -61,17 +62,44 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
-          <el-button type="primary" size="medium" icon="el-icon-edit" @click="handleUpdate(row.id)">
-            Edit
+          <el-button type="primary" size="mini" @click="handleUpdate(row.id)">
+            编辑
           </el-button>
-          <el-button v-if="row.status!='deleted'" size="medium" icon="el-icon-delete" type="danger" @click="handleDel(row.id)">
-            Delete
+          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDel(row.id)">
+            删除
           </el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <pagination v-show="total>0" :total="total" :page.sync="query.pageNo" :limit.sync="query.pageSize" @pagination="fetchData" />
+
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+      <el-form ref="goodsForm" :rules="rules" :model="temp" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
+        <el-form-item label="商品名" prop="name">
+          <el-input v-model="temp.name" />
+        </el-form-item>
+        <el-form-item label="商品类目" prop="category">
+          <el-select v-model="temp.category" class="filter-item" placeholder="Please select">
+            <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="商品单价" prop="price">
+          <el-input v-model="temp.price" />
+        </el-form-item>
+        <el-form-item label="商品介绍" prop="desc">
+          <el-input v-model="temp.desc" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="请输入商品介绍" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">
+          取消
+        </el-button>
+        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
+          提交
+        </el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -92,7 +120,20 @@ export default {
         name: '',
         category: ''
       },
-      total: 0
+      total: 0,
+      textMap: {
+        update: '编辑',
+        create: '创建'
+      },
+      temp: {},
+      dialogFormVisible: false,
+      dialogStatus: '',
+      rules: {
+        name: [{ required: true, message: '商品名不能为空', trigger: 'change' }],
+        category: [{ required: true, message: '商品类目不能为空', trigger: 'change' }],
+        price: [{ required: true, message: '商品单价不能为空', trigger: 'change' }],
+        desc: [{ required: true, message: '商品详情不能为空', trigger: 'change' }]
+      }
     }
   },
   created() {
@@ -105,7 +146,6 @@ export default {
     fetchData() {
       this.listLoading = true
       getGoodsList(this.query).then(response => {
-        console.log(response)
         this.list = response.data
         this.listLoading = false
         this.total = response.total
@@ -117,12 +157,25 @@ export default {
       this.fetchData()
     },
 
+    resetTemp() {
+      this.temp = {}
+    },
+
     handleCreate() {
-      this.$router.replace('/admin/article/add')
+      this.resetTemp()
+      this.dialogStatus = 'create'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['goodsForm'].clearValidate()
+      })
     },
 
     handleUpdate(id) {
-      this.$router.replace('/admin/article/edit/' + id)
+      this.dialogStatus = 'update'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['goodsForm'].clearValidate()
+      })
     },
 
     handleDel(id) {
@@ -140,6 +193,41 @@ export default {
         this.$message.info('已取消删除')
       })
     }
+  },
+
+  createData() {
+    this.$refs['goodsForm'].validate((valid) => {
+      if (valid) {
+        // createArticle(this.temp).then(() => {
+        //   this.list.unshift(this.temp)
+        //   this.dialogFormVisible = false
+        //   this.$notify({
+        //     title: 'Success',
+        //     message: 'Created Successfully',
+        //     type: 'success',
+        //     duration: 2000
+        //   })
+        // })
+      }
+    })
+  },
+
+  updateData() {
+    this.$refs['goodsForm'].validate((valid) => {
+      if (valid) {
+        // updateArticle(tempData).then(() => {
+        //   const index = this.list.findIndex(v => v.id === this.temp.id)
+        //   this.list.splice(index, 1, this.temp)
+        //   this.dialogFormVisible = false
+        //   this.$notify({
+        //     title: 'Success',
+        //     message: 'Update Successfully',
+        //     type: 'success',
+        //     duration: 2000
+        //   })
+        // })
+      }
+    })
   }
 }
 </script>
