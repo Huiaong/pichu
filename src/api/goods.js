@@ -1,10 +1,10 @@
 import request from '@/utils/request'
 
-export function getGoodsList(data, query) {
+export function getGoodsList(data) {
   return request({
-    url: `/api/admin/goods/paging?pageNo=${query.pageNo}&pageSize=${query.pageSize}`,
+    url: `/api/admin/goods/paging`,
     method: 'get',
-    data
+    params: data
   })
 }
 

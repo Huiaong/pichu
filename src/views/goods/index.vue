@@ -1,17 +1,20 @@
 <template>
   <div class="app-container">
-    <div class="filter-container">
-      <el-input v-model="query.title" size="mini" placeholder="商品名" style="width: 200px;" class="filter-item" />
-      <el-select v-model="query.category" size="mini" placeholder="选择分类" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id" />
-      </el-select>
-      <el-button class="filter-item" size="mini" type="primary" icon="el-icon-search" @click="fetchData">
-        查询
-      </el-button>
-      <el-button class="filter-item" size="mini" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
-        新增
-      </el-button>
-    </div>
+
+    <el-form :inline="true" class="demo-form-inline">
+      <el-form-item label="商品名搜索">
+        <el-input v-model="query.name" placeholder="商品名" />
+      </el-form-item>
+
+      <el-form-item label="商品类目搜索">
+        <el-select v-model="query.category" placeholder="选择分类" clearable>
+          <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id" />
+        </el-select>
+      </el-form-item>
+
+      <el-button type="primary" icon="el-icon-search" @click="fetchData">查询</el-button>
+      <el-button type="default" @click="refetchData">清空</el-button>
+    </el-form>
 
     <el-table
       v-loading="listLoading"
@@ -19,7 +22,6 @@
       element-loading-text="Loading"
       border
       fit
-      size="mini"
       highlight-current-row
     >
       <el-table-column align="center" label="ID">
@@ -59,17 +61,17 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
-          <el-button type="primary" size="mini" @click="handleUpdate(row.id)">
+          <el-button type="primary" size="medium" icon="el-icon-edit" @click="handleUpdate(row.id)">
             Edit
           </el-button>
-          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDel(row.id)">
+          <el-button v-if="row.status!='deleted'" size="medium" icon="el-icon-delete" type="danger" @click="handleDel(row.id)">
             Delete
           </el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.pageNo" :limit.sync="listQuery.pageSize" @pagination="fetchData" />
+    <pagination v-show="total>0" :total="total" :page.sync="query.pageNo" :limit.sync="query.pageSize" @pagination="fetchData" />
   </div>
 </template>
 
@@ -84,12 +86,13 @@ export default {
       list: null,
       categoryList: null,
       listLoading: true,
-      listQuery: {
+      query: {
         pageNo: 1,
-        pageSize: 20
+        pageSize: 20,
+        name: '',
+        category: ''
       },
-      total: 0,
-      query: {}
+      total: 0
     }
   },
   created() {
@@ -101,11 +104,17 @@ export default {
   methods: {
     fetchData() {
       this.listLoading = true
-      getGoodsList(this.query, this.listQuery).then(response => {
+      getGoodsList(this.query).then(response => {
+        console.log(response)
         this.list = response.data
         this.listLoading = false
         this.total = response.total
       })
+    },
+
+    refetchData() {
+      this.query = {}
+      this.fetchData()
     },
 
     handleCreate() {
