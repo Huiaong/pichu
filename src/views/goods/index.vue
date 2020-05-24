@@ -79,6 +79,17 @@
         <el-form-item label="商品名" prop="name">
           <el-input v-model="temp.name" />
         </el-form-item>
+        <el-form-item label="商品图片" prop="imgPath">
+          <el-upload
+            action="/api/admin/goods/uploadFile"
+            list-type="picture"
+            :file-list="fileList"
+            :on-success="handleUploadSuccess"
+          >
+            <el-button size="small" type="primary">点击上传</el-button>
+            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+          </el-upload>
+        </el-form-item>
         <el-form-item label="商品类目" prop="category">
           <el-select v-model="temp.category" class="filter-item" placeholder="Please select">
             <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id" />
@@ -104,7 +115,7 @@
 </template>
 
 <script>
-import { getGoodsList, delGoods } from '@/api/goods'
+import { getGoodsList, delGoods, findById } from '@/api/goods'
 import Pagination from '@/components/Pagination'
 
 export default {
@@ -126,13 +137,15 @@ export default {
         create: '创建'
       },
       temp: {},
+      fileList: [],
       dialogFormVisible: false,
       dialogStatus: '',
       rules: {
         name: [{ required: true, message: '商品名不能为空', trigger: 'change' }],
         category: [{ required: true, message: '商品类目不能为空', trigger: 'change' }],
         price: [{ required: true, message: '商品单价不能为空', trigger: 'change' }],
-        desc: [{ required: true, message: '商品详情不能为空', trigger: 'change' }]
+        desc: [{ required: true, message: '商品详情不能为空', trigger: 'change' }],
+        imgPath: [{ required: true, message: '商品图片不能为空', trigger: 'change' }]
       }
     }
   },
@@ -164,6 +177,7 @@ export default {
     handleCreate() {
       this.resetTemp()
       this.dialogStatus = 'create'
+      this.fileList = []
       this.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['goodsForm'].clearValidate()
@@ -171,10 +185,21 @@ export default {
     },
 
     handleUpdate(id) {
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['goodsForm'].clearValidate()
+      findById(id).then(response => {
+        this.temp = response
+
+        const imgList = []
+        for (const goodsKind of this.temp.goodsKind) {
+          imgList.push({ 'name': goodsKind.nickName, 'url': goodsKind.imgPath })
+        }
+        this.fileList = imgList
+
+        this.dialogStatus = 'update'
+        this.dialogFormVisible = true
+
+        this.$nextTick(() => {
+          this.$refs['goodsForm'].clearValidate()
+        })
       })
     },
 
@@ -192,6 +217,11 @@ export default {
       }).catch(() => {
         this.$message.info('已取消删除')
       })
+    },
+
+    // 图文上传成功
+    handleUploadSuccess(response, file, fileList) {
+      this.fileList.push({ 'name': response.result.fileName, 'url': response.result.fileAddr })
     }
   },
 

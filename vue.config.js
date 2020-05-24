@@ -7,7 +7,12 @@ function resolve(dir) {
 module.exports = {
   devServer: {
     port: 8065,
-    proxy: 'http://localhost:8080'
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
+      }
+    }
   },
   chainWebpack(config) {
     config.plugins.delete('preload') // TODO: need test
