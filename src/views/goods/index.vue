@@ -79,7 +79,7 @@
         <el-form-item label="商品名" prop="name">
           <el-input v-model="temp.name" />
         </el-form-item>
-        <el-form-item label="商品图片" prop="imgPath">
+        <el-form-item label="商品图片">
           <el-upload
             action="/api/admin/goods/uploadFile"
             list-type="picture"
@@ -115,7 +115,7 @@
 </template>
 
 <script>
-import { getGoodsList, delGoods, findById } from '@/api/goods'
+import { getGoodsList, delGoods, findById, updateGoods } from '@/api/goods'
 import Pagination from '@/components/Pagination'
 
 export default {
@@ -144,8 +144,7 @@ export default {
         name: [{ required: true, message: '商品名不能为空', trigger: 'change' }],
         category: [{ required: true, message: '商品类目不能为空', trigger: 'change' }],
         price: [{ required: true, message: '商品单价不能为空', trigger: 'change' }],
-        desc: [{ required: true, message: '商品详情不能为空', trigger: 'change' }],
-        imgPath: [{ required: true, message: '商品图片不能为空', trigger: 'change' }]
+        desc: [{ required: true, message: '商品详情不能为空', trigger: 'change' }]
       }
     }
   },
@@ -186,10 +185,11 @@ export default {
 
     handleUpdate(id) {
       findById(id).then(response => {
+        console.log(response)
         this.temp = response
 
         const imgList = []
-        for (const goodsKind of this.temp.goodsKind) {
+        for (const goodsKind of this.temp.goodsKinds) {
           imgList.push({ 'name': goodsKind.nickName, 'url': goodsKind.imgPath })
         }
         this.fileList = imgList
@@ -222,12 +222,11 @@ export default {
     // 图文上传成功
     handleUploadSuccess(response, file, fileList) {
       this.fileList.push({ 'name': response.result.fileName, 'url': response.result.fileAddr })
-    }
-  },
+    },
 
-  createData() {
-    this.$refs['goodsForm'].validate((valid) => {
-      if (valid) {
+    createData() {
+      this.$refs['goodsForm'].validate((valid) => {
+        if (valid) {
         // createArticle(this.temp).then(() => {
         //   this.list.unshift(this.temp)
         //   this.dialogFormVisible = false
@@ -238,26 +237,29 @@ export default {
         //     duration: 2000
         //   })
         // })
-      }
-    })
-  },
+        }
+      })
+    },
 
-  updateData() {
-    this.$refs['goodsForm'].validate((valid) => {
-      if (valid) {
-        // updateArticle(tempData).then(() => {
-        //   const index = this.list.findIndex(v => v.id === this.temp.id)
-        //   this.list.splice(index, 1, this.temp)
-        //   this.dialogFormVisible = false
-        //   this.$notify({
-        //     title: 'Success',
-        //     message: 'Update Successfully',
-        //     type: 'success',
-        //     duration: 2000
-        //   })
-        // })
-      }
-    })
+    updateData() {
+      this.$refs['goodsForm'].validate((valid) => {
+        if (valid) {
+          console.log(this.temp)
+          updateGoods(this.temp).then(() => {
+            const index = this.list.findIndex(v => v.id === this.temp.id)
+            this.list.splice(index, 1, this.temp)
+            this.dialogFormVisible = false
+            this.temp = {}
+            this.$notify({
+              title: 'Success',
+              message: 'Update Successfully',
+              type: 'success',
+              duration: 2000
+            })
+          })
+        }
+      })
+    }
   }
 }
 </script>

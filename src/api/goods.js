@@ -22,3 +22,11 @@ export const findById = (id) => {
     method: 'get'
   })
 }
+
+export const updateGoods = (data) => {
+  return request({
+    url: `/api/admin/goods/update`,
+    method: 'put',
+    data
+  })
+}
